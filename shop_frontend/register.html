@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đăng Ký | MILK TEA</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root {
+  --primary-green: #709C4C;
+  --accent-green: #A3C9A8;
+  --dark-text: #3D5633;
+}
+body { font-family: 'Inter', sans-serif; background:#f5f5f5; }
+.auth-container { max-width: 450px; margin: 50px auto; padding: 20px; background:white; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+input { width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; margin-bottom:12px; }
+input:focus { border-color: var(--accent-green); box-shadow:0 0 0 3px rgba(163,201,168,0.5); outline:none; }
+button { width:100%; padding:12px; background:var(--primary-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; transition:0.3s; }
+button:hover { background:var(--accent-green); }
+.error-message { color:red; height:1.2rem; margin-bottom:8px; }
+.success-message { color:green; height:1.2rem; margin-bottom:8px; }
+</style>
+</head>
+<body>
+
+<div class="auth-container">
+<h2 class="text-center text-2xl font-bold mb-4" style="color:var(--dark-text)">ĐĂNG KÝ</h2>
+<form id="registerForm">
+  <input type="text" id="username" placeholder="Tên người dùng" required>
+  <input type="email" id="email" placeholder="Email" required>
+  <input type="password" id="password" placeholder="Mật khẩu" required minlength="6">
+  <input type="password" id="confirmPassword" placeholder="Xác nhận mật khẩu" required minlength="6">
+  
+  <div id="errorMessage" class="error-message"></div>
+  <div id="successMessage" class="success-message"></div>
+  
+  <button type="submit">ĐĂNG KÝ</button>
+</form>
+<p class="text-center mt-4">Đã có tài khoản? <a href="login.html" style="color:var(--primary-green)">Đăng nhập</a></p>
+</div>
+
+<script>
+const form = document.getElementById('registerForm');
+const errorMessage = document.getElementById('errorMessage');
+const successMessage = document.getElementById('successMessage');
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMessage.textContent = '';
+    successMessage.textContent = '';
+
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    if (password !== confirmPassword) {
+        errorMessage.textContent = 'Mật khẩu xác nhận không khớp!';
+        return;
+    }
+
+    try {
+        const res = await fetch('http://127.0.0.1:4000/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.token) {
+            localStorage.setItem('token', data.token);
+            successMessage.textContent = 'Đăng ký thành công! Chuyển hướng...';
+            setTimeout(() => window.location.href = 'index.html', 1000);
+        } else {
+            errorMessage.textContent = data.message || 'Đăng ký thất bại';
+        }
+    } catch (err) {
+        errorMessage.textContent = 'Không thể kết nối tới máy chủ!';
+        console.error(err);
+    }
+});
+</script>
+<script src="js/page_main.js"></script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đăng Nhập | MILK TEA</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root {
+  --primary-green: #709C4C;
+  --accent-green: #A3C9A8;
+  --dark-text: #3D5633;
+}
+body { font-family: 'Inter', sans-serif; background:#f5f5f5; }
+.auth-container { max-width: 450px; margin: 50px auto; padding: 20px; background:white; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+input { width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; margin-bottom:12px; }
+input:focus { border-color: var(--accent-green); box-shadow:0 0 0 3px rgba(163,201,168,0.5); outline:none; }
+button { width:100%; padding:12px; background:var(--primary-green); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; transition:0.3s; }
+button:hover { background:var(--accent-green); }
+.error-message { color:red; height:1.2rem; margin-bottom:8px; }
+</style>
+</head>
+<body>
+
+<div class="auth-container">
+<h2 class="text-center text-2xl font-bold mb-4" style="color:var(--dark-text)">ĐĂNG NHẬP</h2>
+<form id="loginForm">
+  <input type="email" id="email" placeholder="Email" required>
+  <input type="password" id="password" placeholder="Mật khẩu" required>
+  
+  <div id="loginErrorMessage" class="error-message"></div>
+  
+  <button type="submit">ĐĂNG NHẬP</button>
+</form>
+<p class="text-center mt-4">Chưa có tài khoản? <a href="register.html" style="color:var(--primary-green)">Đăng ký</a></p>
+</div>
+
+<script>
+const loginForm = document.getElementById('loginForm');
+const loginErrorMessage = document.getElementById('loginErrorMessage');
+
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginErrorMessage.textContent = '';
+
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    try {
+        const res = await fetch('http://127.0.0.1:4000/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.token) {
+            localStorage.setItem('token', data.token);
+            window.location.href = 'index.html'; // Chuyển tới trang chính
+        } else {
+            loginErrorMessage.textContent = data.message || 'Đăng nhập thất bại';
+        }
+    } catch (err) {
+        loginErrorMessage.textContent = 'Không thể kết nối tới máy chủ!';
+        console.error(err);
+    }
+});
+</script>
+
+<script src="js/page_main.js"></script>
+
+</body>
+</html>
